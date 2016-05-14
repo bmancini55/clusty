@@ -56,7 +56,7 @@ export async function getdirs(script = 'start') {
 
 
 export async function createLogDir() {
-  let exists = await fs.exists('.goodly');
+  let exists = await fs.exists('.lightbird');
   if(!exists)
-    await fs.mkdir('.goodly');
+    await fs.mkdir('.lightbird');
 }
