@@ -22,7 +22,7 @@ async function run(uid) {
     process.exit(1);
   }
 
-  if(parseInt(uid) !== NaN) {
+  if(!isNaN(parseInt(uid))) {
     index = parseInt(uid);
     uid = await forever.findByIndex(index).uid;
 
