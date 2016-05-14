@@ -1,26 +1,20 @@
 
-import debugModule from 'debug';
 import path from 'path';
 import fs from 'mz/fs';
 import program from 'commander';
 import forever from 'forever';
-import colors from 'colors';
+import 'colors';
+
+import { log } from './util';
 
 
 program
   .parse(process.argv);
 
-run(program.args).catch(err => {
-  console.error(err);
-  process.exit(1);
-});
-
-async function log() {
-  console.log.apply(console, arguments);
-}
+run(program.args).catch(err => log(err.stack));
 
 // runs the command
-async function run(args) {
+async function run() {
   let crawlPath = path.resolve('./');
   let dirs      = await getdirs(crawlPath);
   let configs    = await createConfigs(dirs);
