@@ -1,6 +1,6 @@
 {
   "name": "lightbird",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Command line tools for working with a microservice cluster",
   "bin": {
     "lightbird": "bin/lightbird.js"
