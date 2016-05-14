@@ -1,16 +1,16 @@
 {
-  "name": "goodly-cli",
-  "version": "0.1.0",
+  "name": "lightbird",
+  "version": "0.2.0",
   "description": "Command line tools for working with a microservice cluster",
   "bin": {
-    "goodly": "bin/goodly.js"
+    "lightbird": "bin/lightbird.js"
   },
+  "repository": "bmancini55/lightbird-cli",
   "author": "Brian Mancini <bmancini@gmail.com>",
   "license": "MIT",
   "scripts": {
     "build": "babel src --out-dir dist",
-    "prepublish": "npm run build",
-    "test": "mocha --compilers js:babel-register --require babel-polyfill --recursive \"src/**/*.spec.js\""
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "babel-polyfill": "^6.8.0",
