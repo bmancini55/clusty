@@ -2,7 +2,9 @@
 import forever from 'forever';
 
 export async function start(config) {
-  forever.startDaemon(null, config);
+  let script = config.script;
+  delete config.script;
+  forever.startDaemon(script, config);
 }
 
 export async function list() {

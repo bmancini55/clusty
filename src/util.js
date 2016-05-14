@@ -15,7 +15,7 @@ export function error(msg) {
 }
 
 
-export function createConfigs(dirs, cmd = 'npm start') {
+export function createConfigs(dirs, script = 'start') {
   let cwd = process.cwd();
   let base = path.basename(cwd);
   return dirs.map(dir => {
@@ -25,9 +25,11 @@ export function createConfigs(dirs, cmd = 'npm start') {
       uid: uid,
       append: true,
       watch: false,
-      command: cmd,
+      command: 'npm run',
+      script: script,
       cwd: path.join(cwd, dir),
-      logFile: logFile
+      logFile: logFile,
+      max: 1
     };
   });
 }
@@ -50,4 +52,11 @@ export async function getdirs(script = 'start') {
     }
   }
   return results;
+}
+
+
+export async function createLogDir() {
+  let exists = await fs.exists('.goodly');
+  if(!exists)
+    await fs.mkdir('.goodly');
 }

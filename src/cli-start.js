@@ -1,9 +1,8 @@
 
-import fs from 'mz/fs';
 import program from 'commander';
 import 'colors';
 
-import { log, title, getdirs, createConfigs } from './util';
+import { log, title, getdirs, createConfigs, createLogDir } from './util';
 import * as forever from './forever';
 
 
@@ -36,11 +35,3 @@ async function run() {
     }
   }
 }
-
-// create log directory
-async function createLogDir() {
-  let exists = await fs.exists('.goodly');
-  if(!exists)
-    await fs.mkdir('.goodly');
-}
-
