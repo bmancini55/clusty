@@ -1,6 +1,13 @@
 # lightbird
 Lightbird is a command-line utility for running a number of node applications in parallel. 
+
 ## Use
+
+Install lightbird globally:
+```sh
+npm install -g lightbird
+```
+
 You run lightbird at the root path of a number of applications. Lightbird allows you to `start`, `stop` or `watch` your cluster. It will log output files to `.lightbird` and you can execute tail operations on the log files for a given service.
 
 
