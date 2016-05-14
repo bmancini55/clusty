@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require('babel-polyfill');
-require('../dist/cli-log');
+require('../dist/cli-logs');

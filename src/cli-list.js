@@ -24,9 +24,10 @@ async function run() {
 
   title('Listing cluster...');
 
-  let rows = [ [ 'uid', 'uptime' ] ];
-  for(let proc of procs) {
-    rows.push([ proc.uid.grey, uptime(proc) ]);
+  let rows = [ [ '', 'uid', 'uptime' ] ];
+  for(let idx = 0; idx < procs.length; idx++) {
+    let proc = procs[idx];
+    rows.push([ `[${idx}]`, proc.uid.cyan, uptime(proc) ]);
   }
 
   log(cliff.stringifyRows(rows));

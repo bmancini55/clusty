@@ -5,5 +5,5 @@ program
   .command('start', 'start cluster')
   .command('stop', 'start cluster')
   .command('list', 'list running nodes')
-  .command('log <service>', 'outputs the specified log')
+  .command('logs <service>', 'outputs the logs for the service')
   .parse(process.argv);

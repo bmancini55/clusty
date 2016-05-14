@@ -16,7 +16,7 @@ async function run() {
   let procs = await forever.list();
 
   if(!procs) {
-    title('No running processes'.grey);
+    title('No running processes');
     return;
   }
 
@@ -24,6 +24,6 @@ async function run() {
 
   for(let proc of procs) {
     await forever.stop(proc.uid);
-    log('stopped: '.green, proc.uid.grey);
+    log('stopped: '.green, proc.uid.cyan);
   }
 }

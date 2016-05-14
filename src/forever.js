@@ -31,3 +31,7 @@ export async function findIndex(uid) {
 
   return procs.findIndex(proc => proc.uid === uid);
 }
+
+export async function findByIndex(index) {
+  return forever.findByIndex(index);
+}
