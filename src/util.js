@@ -6,3 +6,7 @@ export function log() {
 export function title(title) {
   console.log(title.bold.white);
 }
+
+export function error(msg) {
+  console.log('error: '.red + msg);
+}

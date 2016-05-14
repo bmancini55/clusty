@@ -17,3 +17,17 @@ export async function list() {
 export async function stop(name) {
   forever.stop(name);
 }
+
+export async function tailLines(index, opts, log) {
+  forever.tail(index, opts, (err, data) => {
+    log(err || data.line);
+  });
+}
+
+export async function findIndex(uid) {
+  let procs = await list();
+  if(!procs)
+    return -1;
+
+  return procs.findIndex(proc => proc.uid === uid);
+}
