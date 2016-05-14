@@ -2,10 +2,10 @@
 import path from 'path';
 import fs from 'mz/fs';
 import program from 'commander';
-import forever from 'forever';
 import 'colors';
 
-import { log } from './util';
+import { log, title } from './util';
+import * as forever from './forever';
 
 
 program
@@ -15,11 +15,28 @@ run(program.args).catch(err => log(err.stack));
 
 // runs the command
 async function run() {
+  await createLogDir();
+
   let crawlPath = path.resolve('./');
   let dirs      = await getdirs(crawlPath);
   let configs    = await createConfigs(dirs);
-  await createLogDir();
-  await spawnForever(configs);
+
+  if(!configs || !configs.length) {
+    title('No candidates for starting found');
+    return;
+  }
+
+  title('Starting cluster...');
+
+  for(let config of configs) {
+    try {
+      await forever.start(config);
+      log('started:'.green, config.uid.grey);
+    }
+    catch(ex) {
+      log('failed'.red, config.uid.grey);
+    }
+  }
 }
 
 // create log directory
@@ -56,7 +73,6 @@ async function createConfigs(dirs) {
   return dirs.map(dir => {
     let uid  = base + '-' + dir;
     let logFile = path.join(cwd, '.goodly', uid + '.log' );
-    log(logFile);
     return {
       uid: uid,
       append: true,
@@ -66,12 +82,4 @@ async function createConfigs(dirs) {
       logFile: logFile
     };
   });
-}
-
-// spawn
-async function spawnForever(configs) {
-  for(let config of configs) {
-    forever.startDaemon(null, config);
-    log('started:'.green, config.uid);
-  }
 }
