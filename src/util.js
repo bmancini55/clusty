@@ -20,7 +20,7 @@ export function createConfigs(dirs, script = 'start') {
   let base = path.basename(cwd);
   return dirs.map(dir => {
     let uid  = base + '-' + dir;
-    let logFile = path.join(cwd, '.goodly', uid + '.log' );
+    let logFile = path.join(cwd, '.lightbird', uid + '.log' );
     return {
       uid: uid,
       append: true,
