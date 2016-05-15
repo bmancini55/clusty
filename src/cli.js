@@ -3,8 +3,8 @@ import program from 'commander';
 
 program
   .command('start', 'start cluster')
+  .command('watch', 'start cluster in watch mode')
   .command('stop', 'start cluster')
-  .command('list', 'list running nodes')
-  .command('logs <service>', 'outputs the logs for the service')
-  .command('watch', 'watches a cluster')
+  .command('ps', 'list running nodes')
+  .command('tail <service>', 'tail the logs for the service')
   .parse(process.argv);

@@ -20,7 +20,7 @@ export function createConfigs(dirs, script = 'start') {
   let base = path.basename(cwd);
   return dirs.map(dir => {
     let uid  = base + '-' + dir;
-    let logFile = path.join(cwd, '.lightbird', uid + '.log' );
+    let logFile = path.join(cwd, '.clusty', uid + '.log' );
     return {
       uid: uid,
       append: true,
@@ -56,7 +56,7 @@ export async function getdirs(script = 'start') {
 
 
 export async function createLogDir() {
-  let exists = await fs.exists('.lightbird');
+  let exists = await fs.exists('.clusty');
   if(!exists)
-    await fs.mkdir('.lightbird');
+    await fs.mkdir('.clusty');
 }

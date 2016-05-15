@@ -1,11 +1,11 @@
 {
-  "name": "lightbird",
+  "name": "clusty",
   "version": "0.2.1",
   "description": "Command line tools for working with a microservice cluster",
   "bin": {
-    "lightbird": "bin/lightbird.js"
+    "clusty": "bin/clusty.js"
   },
-  "repository": "bmancini55/lightbird-cli",
+  "repository": "bmancini55/clusty",
   "author": "Brian Mancini <bmancini@gmail.com>",
   "license": "MIT",
   "scripts": {
