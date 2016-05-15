@@ -35,5 +35,13 @@ export async function findIndex(uid) {
 }
 
 export async function findByIndex(index) {
-  return forever.findByIndex(index);
+  return new Promise((resolve, reject) => {
+    forever.list(false, (err, processes) => {
+      if(err) reject(err);
+      else {
+        let result = forever.findByIndex(index, processes);
+        resolve(result ? result[0] : null);
+      }
+    });
+  });
 }
