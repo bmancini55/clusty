@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require('babel-polyfill');
-require('../dist/cli-list');
+require('../dist/cli-ps');

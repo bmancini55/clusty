@@ -19,6 +19,8 @@
     "debug": "^2.2.0",
     "forever": "^0.15.1",
     "mz": "^2.4.0",
+    "pad-left": "^2.1.0",
+    "pidusage": "^1.0.1",
     "timespan": "^2.3.0"
   },
   "devDependencies": {
