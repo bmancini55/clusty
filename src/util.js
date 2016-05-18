@@ -39,19 +39,27 @@ export async function getdirs(script = 'start') {
   let results  = [];
   let subpaths = await fs.readdir(cwd);
   for(let subpath of subpaths) {
-    let stats = await fs.stat(subpath);
-    if(stats.isDirectory()) {
-      let packagePath = path.join(subpath, 'package.json');
-      if(await fs.exists(packagePath)) {
-        let packageBytes = await fs.readFile(packagePath);
-        let pack = JSON.parse(packageBytes);
-        if(pack.scripts && pack.scripts[script]) {
-          results.push(subpath);
-        }
-      }
+    if(await validateDir(subpath, script)) {
+      results.push(subpath);
     }
   }
   return results;
+}
+
+
+export async function validateDir(dir, script = 'start') {
+  let stats = await fs.stat(dir);
+  if(stats.isDirectory()) {
+    let packagePath = path.join(dir, 'package.json');
+    if(await fs.exists(packagePath)) {
+      let packageBytes = await fs.readFile(packagePath);
+      let pack = JSON.parse(packageBytes);
+      if(pack.scripts && pack.scripts[script]) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 

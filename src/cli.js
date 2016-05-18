@@ -2,7 +2,7 @@
 import program from 'commander';
 
 program
-  .command('start', 'start cluster')
+  .command('start <service>', 'start cluster')
   .command('watch', 'start cluster in watch mode')
   .command('stop', 'start cluster')
   .command('ps', 'list running nodes')

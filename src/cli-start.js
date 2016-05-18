@@ -2,7 +2,7 @@
 import program from 'commander';
 import 'colors';
 
-import { log, title, getdirs, createConfigs, createLogDir } from './util';
+import { log, title, getdirs, validateDir, createConfigs, createLogDir } from './util';
 import * as forever from './forever';
 
 
@@ -15,11 +15,23 @@ run(program.args).catch(err => log(err.stack));
 async function run() {
   await createLogDir();
 
-  let dirs    = await getdirs();
-  let configs = await createConfigs(dirs);
+  // fetch the directors or use the supplied dir
+  let dirs = [];
+  if(program.args.length) {
+    for(let service of program.args) {
+      if(await validateDir(service)) {
+        dirs.push(service);
+      }
+    }
+  }
+  else {
+    dirs = await getdirs();
+  }
 
+  // create configs and validate there is work to do
+  let configs  = await createConfigs(dirs);
   if(!configs || !configs.length) {
-    title('No candidates for starting found');
+    title('No directories for starting found');
     return;
   }
 
