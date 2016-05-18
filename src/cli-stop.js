@@ -1,13 +1,13 @@
 
 
-//import program from 'commander';
+import program from 'commander';
 import 'colors';
 
 import { log, title } from './util';
 import * as forever from './forever';
 
-// program
-//   .parse(process.argv);
+program
+  .parse(process.argv);
 
 run()
   .then(() => console.log('Stop complete'.white))
@@ -17,6 +17,23 @@ run()
 async function run() {
   let procs = await forever.list();
 
+  let uids = [];
+  if(program.args.length) {
+    let procsLookup = procs
+      .reduce((p, n) => {
+        p[n.uid] = n;
+        return p;
+      }, {});
+    for(let service of program.args) {
+      if(procsLookup[service])
+        uids.push(service);
+    }
+  }
+  else {
+    uids = procs.map(p => p.uid);
+  }
+
+
   if(!procs) {
     title('No running processes');
     return;
@@ -25,10 +42,10 @@ async function run() {
   title('Stopping cluster...');
 
   // close all processes
-  return Promise.all(procs.map(proc => {
+  return Promise.all(uids.map(uid => {
     return forever
-      .stop(proc.uid)
-      .then(() => log('stopped:'.green, proc.uid.cyan))
-      .catch(ex => log('stopped:'.red, proc.uid.cyan, (' - Error: ' + ex.message).grey));
+      .stop(uid)
+      .then(() => log('stopped:'.green, uid.cyan))
+      .catch(ex => log('stopped:'.red, uid.cyan, (' - Error: ' + ex.message).grey));
   }));
 }

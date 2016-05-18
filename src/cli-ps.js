@@ -57,7 +57,7 @@ async function run() {
     'TOTAL',
     '',
     pad(memTotal.toFixed(1), 6, ' '),
-    pad(cpuTotal, 5, ' '),
+    pad(cpuTotal.toFixed(0), 5, ' '),
     ''
   ]);
 
