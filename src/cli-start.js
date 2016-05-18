@@ -43,7 +43,7 @@ async function run() {
       log('started:'.green, config.uid.cyan);
     }
     catch(ex) {
-      log('failed'.red, config.uid.cyan);
+      log('failed'.red, config.uid.cyan, (' - Error: ' + ex.message).grey);
     }
   }
 }

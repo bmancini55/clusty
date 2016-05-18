@@ -1,15 +1,17 @@
 
 
-import program from 'commander';
+//import program from 'commander';
 import 'colors';
 
 import { log, title } from './util';
 import * as forever from './forever';
 
-program
-  .parse(process.argv);
+// program
+//   .parse(process.argv);
 
-run(program.args).catch(err => log(err.stack));
+run()
+  .then(() => console.log('Stop complete'.white))
+  .catch(err => console.log(err));
 
 // runs the command
 async function run() {
@@ -22,8 +24,11 @@ async function run() {
 
   title('Stopping cluster...');
 
-  for(let proc of procs) {
-    await forever.stop(proc.uid);
-    log('stopped: '.green, proc.uid.cyan);
-  }
+  // close all processes
+  return Promise.all(procs.map(proc => {
+    return forever
+      .stop(proc.uid)
+      .then(() => log('stopped:'.green, proc.uid.cyan))
+      .catch(ex => log('stopped:'.red, proc.uid.cyan, (' - Error: ' + ex.message).grey));
+  }));
 }

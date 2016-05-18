@@ -17,7 +17,11 @@ export async function list() {
 }
 
 export async function stop(name) {
-  forever.stop(name);
+  return new Promise((resolve, reject) => {
+    let emitter = forever.stop(name);
+    emitter.on('error', (err) => reject(err));
+    emitter.on('stop', () => resolve());
+  });
 }
 
 export async function tailLines(index, opts, log) {
