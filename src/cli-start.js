@@ -40,10 +40,10 @@ async function run() {
   for(let config of configs) {
     try {
       await forever.start(config);
-      log('started:'.green, config.uid.cyan);
+      log('started:'.green, config.clusterName.cyan, config.serviceType.cyan, config.uid.cyan);
     }
     catch(ex) {
-      log('failed'.red, config.uid.cyan, (' - Error: ' + ex.message).grey);
+      log('failed'.red, config.clusterName.cyan, config.serviceType.cyan, config.uid.cyan, (' - Error: ' + ex.message).grey);
     }
   }
 }

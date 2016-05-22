@@ -68,21 +68,21 @@ async function nav(newIndex) {
 
 async function tail(arg) {
   let index;
-  let uid;
+  let proc;
 
   // when index
   if(!isNaN(parseInt(arg))) {
     index = parseInt(arg);
-    uid = (await forever.findByIndex(index)).uid;
+    proc = await forever.findByIndex(index);
   }
   // when uid
   else {
     index = await forever.findIndex(arg);
-    uid = arg;
+    proc = await forever.findByIndex(index);
   }
 
   log('\n==================================================================================\n');
-  log(` Tail ${index}: ` + uid.cyan);
+  log(` Tail ${index}: `, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan);
   log('\n----------------------------------------------------------------------------------\n');
 
   let options = {

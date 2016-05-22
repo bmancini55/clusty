@@ -17,7 +17,7 @@ run()
 async function run() {
   let procs = await forever.list();
 
-  let uids = [];
+  let selectedProcs = [];
   if(program.args.length) {
     let procsLookup = procs
       .reduce((p, n) => {
@@ -26,11 +26,11 @@ async function run() {
       }, {});
     for(let service of program.args) {
       if(procsLookup[service])
-        uids.push(service);
+        selectedProcs.push(procsLookup[service]);
     }
   }
   else {
-    uids = procs.map(p => p.uid);
+    selectedProcs = procs;
   }
 
 
@@ -42,10 +42,10 @@ async function run() {
   title('Stopping cluster...');
 
   // close all processes
-  return Promise.all(uids.map(uid => {
+  return Promise.all(selectedProcs.map(proc => {
     return forever
-      .stop(uid)
-      .then(() => log('stopped:'.green, uid.cyan))
-      .catch(ex => log('stopped:'.red, uid.cyan, (' - Error: ' + ex.message).grey));
+      .stop(proc.uid)
+      .then(() => log('stopped:'.green, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan))
+      .catch(ex => log('stopped:'.red, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan, (' - Error: ' + ex.message).grey));
   }));
 }

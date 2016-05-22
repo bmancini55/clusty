@@ -1,6 +1,7 @@
 
 import path from 'path';
 import fs from 'mz/fs';
+import dockerNames from 'docker-names';
 
 export function log() {
   console.log.apply(console, arguments);
@@ -15,21 +16,31 @@ export function error(msg) {
 }
 
 
-export function createConfigs(dirs, script = 'start') {
+export function createConfigs(dirs, script = 'start' ) {
   let cwd = process.cwd();
-  let base = path.basename(cwd);
+  let clusterName =path.basename(cwd);
+  let instanceName = dockerNames.getRandomName();
+
   return dirs.map(dir => {
-    let uid  = base + '-' + dir;
-    let logFile = path.join(cwd, '.clusty', uid + '.log' );
+    let serviceType  = dir;
+    let logFile = path.join(cwd, '.clusty', instanceName + '.log' );
     return {
-      uid: uid,
+      uid: instanceName,
       append: true,
       watch: false,
       command: 'npm run',
       script: script,
       cwd: path.join(cwd, dir),
       logFile: logFile,
-      max: 1
+      max: 1,
+      env: Object.assign({}, process.env, {
+        CLUSTY_CLUSTER_NAME: clusterName,
+        CLUSTY_INSTANCE_NAME: instanceName,
+        CLUSTY_SERVICE_TYPE: serviceType
+      }),
+      clusterName: clusterName,
+      serviceType: serviceType,
+      instanceName: instanceName
     };
   });
 }

@@ -9,9 +9,12 @@ export async function start(config) {
 
 export async function list() {
   return new Promise((resolve, reject) => {
-    forever.list(false, (err, processes) => {
+    forever.list(false, (err, procs) => {
       if(err) reject(err);
-      else resolve(processes);
+      else {
+        procs.forEach(applyClustyConfigs);
+        resolve(procs);
+      }
     });
   });
 }
@@ -44,8 +47,16 @@ export async function findByIndex(index) {
       if(err) reject(err);
       else {
         let result = forever.findByIndex(index, processes);
-        resolve(result ? result[0] : null);
+        resolve(result ? applyClustyConfigs(result[0]) : null);
       }
     });
   });
+}
+
+
+function applyClustyConfigs(proc) {
+  proc.clusterName = proc.spawnWith.env.CLUSTY_CLUSTER_NAME;
+  proc.serviceType = proc.spawnWith.env.CLUSTY_SERVICE_TYPE;
+  proc.instanceName = proc.spawnWith.env.CLUSTY_INSTANCE_NAME;
+  return proc;
 }

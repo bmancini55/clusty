@@ -27,12 +27,11 @@ async function run() {
     return;
   }
 
-  let rows = [ [ '', 'pid', 'uid', 'mem-mb', 'cpu-%', 'uptime' ] ];
+  let rows = [ [ '', 'cluster', 'service', 'uid', 'mem-mb', 'cpu-%', 'uptime', 'pid' ] ];
   let memTotal = 0;
   let cpuTotal = 0;
   for(let idx = 0; idx < procs.length; idx++) {
     let proc = procs[idx];
-
 
     let descendants = await getTree(proc.pid);
     let pids = descendants.slice();
@@ -42,11 +41,14 @@ async function run() {
 
     rows.push([
       `[${idx}]`,
-      `${proc.pid}`.grey,
+      proc.clusterName.cyan,
+      proc.spawnWith.env.CLUSTY_SERVICE_TYPE.cyan,
       proc.uid.cyan,
       pad(mem.toFixed(1), 6, ' ').grey,
       pad(cpu.toFixed(0), 5, ' ').grey,
-      uptime(proc) ]);
+      uptime(proc),
+      `${proc.pid}`.grey,
+    ]);
 
     memTotal += mem;
     cpuTotal += cpu;
@@ -56,8 +58,10 @@ async function run() {
     '',
     'TOTAL',
     '',
+    '',
     pad(memTotal.toFixed(1), 6, ' '),
     pad(cpuTotal.toFixed(0), 5, ' '),
+    '',
     ''
   ]);
 
