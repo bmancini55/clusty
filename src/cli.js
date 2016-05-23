@@ -23,7 +23,7 @@ program
 program
   .command('start [services]')
   .description('Starts the service(s) for the cluster with the supplied options')
-  .option('-s', '--script <script>', 'the npm script to execute, defaults to \'start\'')
+  .option('-s, --script <script>', 'the npm script to execute, defaults to \'start\'')
   .action((services, options) => start(services, options).catch(console.log));
 
 // stop

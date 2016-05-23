@@ -19,12 +19,11 @@ export default async function run() {
 
   title('Listing cluster...');
 
-  let rows = [ [ '', 'cluster', 'service', 'uid', 'uptime', 'mem-mb', 'cpu-%', 'pid' ] ];
+  let rows = [ [ '', 'cluster', 'service', 'uid', 'uptime', 'mem-mb', 'cpu-%', 'pid', 'script' ] ];
   let memTotal = 0;
   let cpuTotal = 0;
   for(let idx = 0; idx < procs.length; idx++) {
     let proc = procs[idx];
-
     let descendants = await getTree(proc.pid);
     let pids = descendants.slice();
     pids.splice(0, null, proc.pid);
@@ -40,6 +39,7 @@ export default async function run() {
       pad(mem.toFixed(1), 6, ' ').grey,
       pad(cpu.toFixed(0), 5, ' ').grey,
       `${proc.pid}`.grey,
+      proc.file.grey
     ]);
 
     memTotal += mem;
@@ -54,6 +54,7 @@ export default async function run() {
     '',
     pad(memTotal.toFixed(1), 6, ' '),
     pad(cpuTotal.toFixed(0), 5, ' '),
+    '',
     ''
   ]);
 
