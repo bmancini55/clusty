@@ -1,6 +1,6 @@
 
 import cliff from 'cliff';
-import { log, title, getDirs, createConfigs, createLogDir } from './util';
+import { log, title, display, getDirs, createConfigs, createLogDir } from './util';
 import * as forever from './forever';
 
 export default async function run(services, { script }) {
@@ -27,10 +27,10 @@ export default async function run(services, { script }) {
   for(let [index, config] of configs.entries()) {
     try {
       await forever.start(config);
-      rows.push([ `[${index}]`, config.clusterName, config.serviceType, config.uid, 'started'.green ]);
+      rows.push([ `[${index}]`, display(config, 'clusterName'), display(config, 'serviceType'), display(config, 'uid'), 'started'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, config.clusterName, config.serviceType, config.uid, 'failed'.red + (' - ' + ex.message).grey]);
+      rows.push([ `[${index}]`, display(config, 'clusterName'), display(config, 'serviceType'), display(config, 'uid'), 'failed'.red + (' - ' + ex.message).grey]);
     }
   }
 

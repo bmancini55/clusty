@@ -1,27 +1,19 @@
 
 import cliff from 'cliff';
-import { log, title } from './util';
+import { log, title, display } from './util';
 import * as forever from './forever';
 
 export default async function run(services) {
-  let procs = await forever.list();
 
-  let selectedProcs = [];
+  // fetch the running processes
+  let procs         = await forever.list();
+  let selectedProcs = procs;
+
+  // filter to applied services
   if(services) {
-    let procsLookup = procs
-      .reduce((p, n) => {
-        p[n.uid] = n;
-        return p;
-      }, {});
-    for(let service of services) {
-      if(procsLookup[service])
-        selectedProcs.push(procsLookup[service]);
-    }
+    services      = services.split(',');
+    selectedProcs = procs.filter(proc => services.indexOf(proc.uid) >= 0);
   }
-  else {
-    selectedProcs = procs;
-  }
-
 
   if(!procs) {
     title('No running processes');
@@ -40,10 +32,10 @@ export default async function run(services) {
   for(let [index, proc] of selectedProcs.entries()) {
     try {
       await forever.stop(proc.pid);
-      rows.push([ `[${index}]`, proc.clusterName, proc.serviceType, proc.uid, 'stopped'.green ]);
+      rows.push([ `[${index}]`, display(proc, 'clusterName'), display(proc, 'serviceType'), display(proc, 'uid'), 'stopped'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, proc.clusterName, proc.serviceType, proc.uid, 'failed'.red + (' - ' + ex.message).grey]);
+      rows.push([ `[${index}]`, display(proc, 'clusterName'), display(proc, 'serviceType'), display(proc, 'uid'), 'failed'.red + (' - ' + ex.message).grey]);
     }
   }
 

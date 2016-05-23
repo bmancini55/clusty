@@ -25,7 +25,7 @@ export function createConfigs(dirs, script = 'start' ) {
     let instanceName = dockerNames.getRandomName();
     let logFile      = path.join(cwd, '.clusty', instanceName + '.log' );
     return {
-      uid: instanceName.cyan,
+      uid: instanceName,
       append: true,
       watch: false,
       command: 'npm run',
@@ -38,9 +38,9 @@ export function createConfigs(dirs, script = 'start' ) {
         CLUSTY_INSTANCE_NAME: instanceName,
         CLUSTY_SERVICE_TYPE: serviceType
       }),
-      clusterName: clusterName.cyan,
-      serviceType: serviceType.cyan,
-      instanceName: instanceName.cyan
+      clusterName: clusterName,
+      serviceType: serviceType,
+      instanceName: instanceName
     };
   });
 }
@@ -78,4 +78,16 @@ export async function createLogDir() {
   let exists = await fs.exists('.clusty');
   if(!exists)
     await fs.mkdir('.clusty');
+}
+
+export function display(proc, property) {
+  switch(property) {
+    case 'uid':
+    case 'clusterName':
+    case 'serviceType':
+    case 'instanceName':
+      return proc[property] && proc[property].cyan;
+    default:
+      return proc[property];
+  }
 }

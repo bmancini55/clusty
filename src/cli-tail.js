@@ -1,6 +1,6 @@
 
 import psTree from 'ps-tree';
-import { log } from './util';
+import { log, display } from './util';
 import * as forever from './forever';
 
 let currentIndex = 0;
@@ -73,7 +73,7 @@ async function tail(arg, opts) {
   }
 
   log('\n==================================================================================\n');
-  log(` Tail ${index}: `, proc.clusterName, proc.serviceType, proc.uid);
+  log(` Tail ${index}: `, display(proc, 'clusterName'), display(proc, 'serviceType'), display(proc, 'uid'));
   log('\n----------------------------------------------------------------------------------\n');
 
   let options = {

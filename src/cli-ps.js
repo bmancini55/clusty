@@ -5,7 +5,7 @@ import psTree from 'ps-tree';
 import pad from 'pad-left';
 import cliff from 'cliff';
 
-import { log, title } from './util';
+import { log, title, display } from './util';
 import * as forever from './forever';
 
 // runs the command
@@ -32,9 +32,9 @@ export default async function run() {
 
     rows.push([
       `[${idx}]`,
-      proc.clusterName,
-      proc.serviceType,
-      proc.uid,
+      display(proc, 'clusterName'),
+      display(proc, 'serviceType'),
+      display(proc, 'uid'),
       uptime(proc),
       pad(mem.toFixed(1), 6, ' ').grey,
       pad(cpu.toFixed(0), 5, ' ').grey,
