@@ -57,8 +57,9 @@ export async function findByIndex(index) {
 
 
 function applyClustyConfigs(proc) {
-  proc.clusterName = proc.spawnWith.env.CLUSTY_CLUSTER_NAME;
-  proc.serviceType = proc.spawnWith.env.CLUSTY_SERVICE_TYPE;
-  proc.instanceName = proc.spawnWith.env.CLUSTY_INSTANCE_NAME;
+  proc.uid.cyan;
+  proc.clusterName = proc.spawnWith.env.CLUSTY_CLUSTER_NAME.cyan;
+  proc.serviceType = proc.spawnWith.env.CLUSTY_SERVICE_TYPE.cyan;
+  proc.instanceName = proc.spawnWith.env.CLUSTY_INSTANCE_NAME.cyan;
   return proc;
 }

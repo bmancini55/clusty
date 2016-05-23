@@ -6,6 +6,7 @@ import ps from './cli-ps';
 import start from './cli-start';
 import stop from './cli-stop';
 import tail from './cli-tail';
+import run from './cli-run';
 
 
 program
@@ -41,6 +42,13 @@ program
   .option('-n, --number [lines]', 'number of lines', parseInt)
   .option('-f, --stream', 'stream lines')
   .action((index, options) => tail(index, options).catch(console.log));
+
+// run
+//
+program
+  .command('run <script> [services]')
+  .description('Runs the command for each of the services')
+  .action((script, services) => run(script, services).catch(console.log));
 
 program
   .parse(process.argv);

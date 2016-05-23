@@ -32,9 +32,9 @@ export default async function run() {
 
     rows.push([
       `[${idx}]`,
-      proc.clusterName.cyan,
-      proc.spawnWith.env.CLUSTY_SERVICE_TYPE.cyan,
-      proc.uid.cyan,
+      proc.clusterName,
+      proc.serviceType,
+      proc.uid,
       uptime(proc),
       pad(mem.toFixed(1), 6, ' ').grey,
       pad(cpu.toFixed(0), 5, ' ').grey,

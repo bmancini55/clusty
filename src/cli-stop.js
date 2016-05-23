@@ -40,10 +40,10 @@ export default async function run(services) {
   for(let [index, proc] of selectedProcs.entries()) {
     try {
       await forever.stop(proc.pid);
-      rows.push([ `[${index}]`, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan, 'stopped'.green ]);
+      rows.push([ `[${index}]`, proc.clusterName, proc.serviceType, proc.uid, 'stopped'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan, 'failed'.red + (' - ' + ex.message).grey]);
+      rows.push([ `[${index}]`, proc.clusterName, proc.serviceType, proc.uid, 'failed'.red + (' - ' + ex.message).grey]);
     }
   }
 

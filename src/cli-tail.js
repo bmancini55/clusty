@@ -73,7 +73,7 @@ async function tail(arg, opts) {
   }
 
   log('\n==================================================================================\n');
-  log(` Tail ${index}: `, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan);
+  log(` Tail ${index}: `, proc.clusterName, proc.serviceType, proc.uid);
   log('\n----------------------------------------------------------------------------------\n');
 
   let options = {

@@ -27,10 +27,10 @@ export default async function run(services, { script }) {
   for(let [index, config] of configs.entries()) {
     try {
       await forever.start(config);
-      rows.push([ `[${index}]`, config.clusterName.cyan, config.serviceType.cyan, config.uid.cyan, 'started'.green ]);
+      rows.push([ `[${index}]`, config.clusterName, config.serviceType, config.uid, 'started'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, config.clusterName.cyan, config.serviceType.cyan, config.uid.cyan, 'failed'.red + (' - ' + ex.message).grey]);
+      rows.push([ `[${index}]`, config.clusterName, config.serviceType, config.uid, 'failed'.red + (' - ' + ex.message).grey]);
     }
   }
 

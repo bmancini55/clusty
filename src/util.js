@@ -25,7 +25,7 @@ export function createConfigs(dirs, script = 'start' ) {
     let instanceName = dockerNames.getRandomName();
     let logFile      = path.join(cwd, '.clusty', instanceName + '.log' );
     return {
-      uid: instanceName,
+      uid: instanceName.cyan,
       append: true,
       watch: false,
       command: 'npm run',
@@ -38,9 +38,9 @@ export function createConfigs(dirs, script = 'start' ) {
         CLUSTY_INSTANCE_NAME: instanceName,
         CLUSTY_SERVICE_TYPE: serviceType
       }),
-      clusterName: clusterName,
-      serviceType: serviceType,
-      instanceName: instanceName
+      clusterName: clusterName.cyan,
+      serviceType: serviceType.cyan,
+      instanceName: instanceName.cyan
     };
   });
 }
