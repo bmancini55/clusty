@@ -4,6 +4,7 @@ import { log, display } from './util';
 import * as forever from './forever';
 
 let currentIndex = 0;
+let tailWithOptions;
 
 // runs the command
 export default async function run(arg, options) {
@@ -13,7 +14,9 @@ export default async function run(arg, options) {
   if(options.stream)
     listenForInput();
 
-  await tail(arg, options);
+  // apply options for subsequent calls
+  tailWithOptions = tail.bind(this, options);
+  await tailWithOptions(arg);
 }
 
 function listenForInput() {
@@ -53,11 +56,16 @@ async function kill() {
 }
 
 async function nav(newIndex) {
-  await kill();
-  await tail(newIndex);
+  try {
+    await kill();
+    await tailWithOptions(newIndex);
+  }
+  catch(ex) {
+    console.log(ex.stack);
+  }
 }
 
-async function tail(arg, opts) {
+async function tail({ number = 50, stream = false }, arg) {
   let index;
   let proc;
 
@@ -77,8 +85,8 @@ async function tail(arg, opts) {
   log('\n----------------------------------------------------------------------------------\n');
 
   let options = {
-    length: opts.number || 50,
-    stream: opts.stream || false
+    length: number,
+    stream: stream
   };
 
   // run tail
