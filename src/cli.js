@@ -10,7 +10,7 @@ import run from './cli-run';
 
 
 program
-  .version('0.3.0');
+  .version('0.3.1');
 
 // ps
 //

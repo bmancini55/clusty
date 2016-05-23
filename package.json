@@ -1,6 +1,6 @@
 {
   "name": "clusty",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Command line tools for working with a microservice cluster",
   "bin": {
     "clusty": "bin/clusty.js"
