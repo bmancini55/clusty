@@ -1,25 +1,15 @@
 
-
-import program from 'commander';
 import timespan from 'timespan';
 import usage from 'pidusage';
 import psTree from 'ps-tree';
 import pad from 'pad-left';
-
 import cliff from 'cliff';
-import 'colors';
-
 
 import { log, title } from './util';
 import * as forever from './forever';
 
-program
-  .parse(process.argv);
-
-run(program.args).catch(err => log(err.stack));
-
 // runs the command
-async function run() {
+export default async function run() {
   let procs = await forever.list();
 
   if(!procs) {
@@ -27,7 +17,9 @@ async function run() {
     return;
   }
 
-  let rows = [ [ '', 'cluster', 'service', 'uid', 'mem-mb', 'cpu-%', 'uptime', 'pid' ] ];
+  title('Listing cluster...');
+
+  let rows = [ [ '', 'cluster', 'service', 'uid', 'uptime', 'mem-mb', 'cpu-%', 'pid' ] ];
   let memTotal = 0;
   let cpuTotal = 0;
   for(let idx = 0; idx < procs.length; idx++) {
@@ -44,9 +36,9 @@ async function run() {
       proc.clusterName.cyan,
       proc.spawnWith.env.CLUSTY_SERVICE_TYPE.cyan,
       proc.uid.cyan,
+      uptime(proc),
       pad(mem.toFixed(1), 6, ' ').grey,
       pad(cpu.toFixed(0), 5, ' ').grey,
-      uptime(proc),
       `${proc.pid}`.grey,
     ]);
 
@@ -59,9 +51,9 @@ async function run() {
     'TOTAL',
     '',
     '',
+    '',
     pad(memTotal.toFixed(1), 6, ' '),
     pad(cpuTotal.toFixed(0), 5, ' '),
-    '',
     ''
   ]);
 

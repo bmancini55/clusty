@@ -1,31 +1,18 @@
 
-import program from 'commander';
-import 'colors';
-
-import { log, title, getdirs, validateDir, createConfigs, createLogDir } from './util';
+import cliff from 'cliff';
+import { log, title, getDirs, createConfigs, createLogDir } from './util';
 import * as forever from './forever';
 
-
-program
-  .parse(process.argv);
-
-run(program.args).catch(err => log(err.stack));
-
-// runs the command
-async function run() {
+export default async function run(services) {
   await createLogDir();
 
-  // fetch the directors or use the supplied dir
-  let dirs = [];
-  if(program.args.length) {
-    for(let service of program.args) {
-      if(await validateDir(service)) {
-        dirs.push(service);
-      }
-    }
-  }
-  else {
-    dirs = await getdirs();
+  // fetch the directory that are validate
+  let dirs = await getDirs();
+
+  // filter directories to the ones we care about
+  if(services) {
+    services = services.split(',');
+    dirs = dirs.filter(d => services.indexOf(d) >= 0);
   }
 
   // create configs and validate there is work to do
@@ -36,14 +23,19 @@ async function run() {
   }
 
   title('Starting cluster...');
-
-  for(let config of configs) {
+  let rows = [ [ '', 'cluster', 'service', 'uid', 'status' ] ];
+  for(let [index, config] of configs.entries()) {
     try {
       await forever.start(config);
-      log('started:'.green, config.clusterName.cyan, config.serviceType.cyan, config.uid.cyan);
+      rows.push([ `[${index}]`, config.clusterName.cyan, config.serviceType.cyan, config.uid.cyan, 'started'.green ]);
     }
     catch(ex) {
-      log('failed'.red, config.clusterName.cyan, config.serviceType.cyan, config.uid.cyan, (' - Error: ' + ex.message).grey);
+      rows.push([ `[${index}]`, config.clusterName.cyan, config.serviceType.cyan, config.uid.cyan, 'failed'.red + (' - ' + ex.message).grey]);
     }
   }
+
+  // output rows
+  log(cliff.stringifyRows(rows));
 }
+
+

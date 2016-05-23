@@ -12,7 +12,8 @@ export async function list() {
     forever.list(false, (err, procs) => {
       if(err) reject(err);
       else {
-        procs.forEach(applyClustyConfigs);
+        if(procs)
+          procs.forEach(applyClustyConfigs);
         resolve(procs);
       }
     });
@@ -22,8 +23,9 @@ export async function list() {
 export async function stop(name) {
   return new Promise((resolve, reject) => {
     let emitter = forever.stop(name);
+    emitter.on('stop',  (arg) => resolve(arg));
     emitter.on('error', (err) => reject(err));
-    emitter.on('stop', () => resolve());
+    resolve();
   });
 }
 

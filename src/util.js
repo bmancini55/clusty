@@ -19,11 +19,11 @@ export function error(msg) {
 export function createConfigs(dirs, script = 'start' ) {
   let cwd = process.cwd();
   let clusterName =path.basename(cwd);
-  let instanceName = dockerNames.getRandomName();
 
   return dirs.map(dir => {
     let serviceType  = dir;
-    let logFile = path.join(cwd, '.clusty', instanceName + '.log' );
+    let instanceName = dockerNames.getRandomName();
+    let logFile      = path.join(cwd, '.clusty', instanceName + '.log' );
     return {
       uid: instanceName,
       append: true,
@@ -45,7 +45,7 @@ export function createConfigs(dirs, script = 'start' ) {
   });
 }
 
-export async function getdirs(script = 'start') {
+export async function getDirs(script) {
   let cwd = process.cwd();
   let results  = [];
   let subpaths = await fs.readdir(cwd);

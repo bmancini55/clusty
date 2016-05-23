@@ -1,30 +1,19 @@
 
-
-import program from 'commander';
-import 'colors';
-
+import cliff from 'cliff';
 import { log, title } from './util';
 import * as forever from './forever';
 
-program
-  .parse(process.argv);
-
-run()
-  .then(() => console.log('Stop complete'.white))
-  .catch(err => console.log(err));
-
-// runs the command
-async function run() {
+export default async function run(services) {
   let procs = await forever.list();
 
   let selectedProcs = [];
-  if(program.args.length) {
+  if(services) {
     let procsLookup = procs
       .reduce((p, n) => {
         p[n.uid] = n;
         return p;
       }, {});
-    for(let service of program.args) {
+    for(let service of services) {
       if(procsLookup[service])
         selectedProcs.push(procsLookup[service]);
     }
@@ -41,11 +30,26 @@ async function run() {
 
   title('Stopping cluster...');
 
+  // this is needed to keep the process open
+  let timeout = setTimeout(() => log('Timeout reached'.red), 30000);
+
+  // header row
+  let rows = [ [ '', 'cluster', 'service', 'uid', 'status' ] ];
+
   // close all processes
-  return Promise.all(selectedProcs.map(proc => {
-    return forever
-      .stop(proc.uid)
-      .then(() => log('stopped:'.green, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan))
-      .catch(ex => log('stopped:'.red, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan, (' - Error: ' + ex.message).grey));
-  }));
+  for(let [index, proc] of selectedProcs.entries()) {
+    try {
+      await forever.stop(proc.pid);
+      rows.push([ `[${index}]`, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan, 'stopped'.green ]);
+    }
+    catch(ex) {
+      rows.push([ `[${index}]`, proc.clusterName.cyan, proc.serviceType.cyan, proc.uid.cyan, 'failed'.red + (' - ' + ex.message).grey]);
+    }
+  }
+
+  // output the rows
+  log(cliff.stringifyRows(rows));
+
+  // clear the timeout
+  clearTimeout(timeout);
 }

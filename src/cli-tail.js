@@ -1,30 +1,19 @@
 
-
-import program from 'commander';
-import 'colors';
 import psTree from 'ps-tree';
-
-import { log, title, error } from './util';
+import { log } from './util';
 import * as forever from './forever';
-
-program
-  .option('-n, --number [lines]', 'number of lines', parseInt)
-  .option('-f, --stream', 'stream lines')
-  .parse(process.argv);
-
-run(program.args[0]).catch(console.log);
 
 let currentIndex = 0;
 
 // runs the command
-async function run(arg) {
+export default async function run(arg, options) {
   if(!arg)
     arg = 0;
 
-  if(program.stream)
+  if(options.stream)
     listenForInput();
 
-  await tail(arg);
+  await tail(arg, options);
 }
 
 function listenForInput() {
@@ -37,12 +26,14 @@ function listenForInput() {
       case '\u001B\u005B\u0044':
         procs = await forever.list();
         length = procs.length;
-        nav((currentIndex + length - 1) % length);
+        currentIndex = (currentIndex + length - 1) % length;
+        nav(currentIndex);
         break;
       case '\u001B\u005B\u0043':
         procs = await forever.list();
         length = procs.length;
-        nav((currentIndex + length + 1) % length);
+        currentIndex = (currentIndex + length + 1) % length;
+        nav(currentIndex);
         break;
       case '\u0003':
         await kill();
@@ -66,7 +57,7 @@ async function nav(newIndex) {
   await tail(newIndex);
 }
 
-async function tail(arg) {
+async function tail(arg, opts) {
   let index;
   let proc;
 
@@ -86,12 +77,10 @@ async function tail(arg) {
   log('\n----------------------------------------------------------------------------------\n');
 
   let options = {
-    length: program.number || 50,
-    stream: program.stream || false
+    length: opts.number || 50,
+    stream: opts.stream || false
   };
 
+  // run tail
   await forever.tailLines(index, options, (line) => log(' ' + line.grey));
-
-  // change state
-  currentIndex = index;
 }
