@@ -5,6 +5,11 @@ import { log, title, getDirs, createConfigs } from './util';
 
 export default async function run(script, services) {
 
+  if(!script) {
+    title('No script was specified. Run clusty --help for all clusty options');
+    return;
+  }
+
   // fetch the directory that are validate
   let dirs = await getDirs(script);
 
@@ -17,33 +22,34 @@ export default async function run(script, services) {
   // create configs and validate there is work to do
   let configs  = await createConfigs(dirs, script);
   if(!configs || !configs.length) {
-    title('No directories for starting found');
+    title('No directories for running found');
     return;
   }
 
 
-  let rows = [ [ '', 'cluster', 'service', 'uid', 'status' ] ];
+  let rows = [ [ '', 'service', 'status' ] ];
   for(let [index, config] of configs.entries()) {
-    log('Running: ', config.clusterName, config.serviceType, config.instanceName);
+    log('Running: ', config.serviceType);
     try {
       await execute(config);
-      rows.push([ `[${index}]`, config.clusterName, config.serviceType, config.uid, 'succeeded'.green ]);
+      rows.push([ `[${index}]`, config.serviceType, 'succeeded'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, config.clusterName, config.serviceType, config.uid, 'failed'.red ]);
+      rows.push([ `[${index}]`, config.serviceType, 'failed'.red ]);
     }
   }
 
   //output rows
-  title('Results from run command...');
+  title('Results from \'' + script + '\'...');
   log(cliff.stringifyRows(rows));
 }
 
 
 function execute(config) {
   return new Promise((resolve, reject) => {
-    // generate the command that runs 'npm run <script>'
-    const cmd = spawn('npm', [ 'run', config.script ], { cwd: config.cwd });
+
+    // generate shell script
+    const cmd = spawn('sh', ['-c', config.script], { cwd: config.cwd });
 
     // log the output
     cmd.stdout.on('data', (data) => {

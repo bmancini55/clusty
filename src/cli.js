@@ -6,11 +6,11 @@ import ps from './cli-ps';
 import start from './cli-start';
 import stop from './cli-stop';
 import tail from './cli-tail';
-import run from './cli-run';
+import cmd from './cli-cmd';
 
 
 program
-  .version('0.3.1');
+  .version('0.4.0');
 
 // ps
 //
@@ -43,12 +43,14 @@ program
   .option('-f, --stream', 'stream lines')
   .action((index, options) => tail(index, options).catch(console.log));
 
-// run
+// cmd
 //
 program
-  .command('run <script> [services]')
+  .command('* <script> [services]')
   .description('Runs the command for each of the services')
-  .action((script, services) => run(script, services).catch(console.log));
+  .action((script, services) => cmd(script, services).catch(console.log));
 
 program
   .parse(process.argv);
+
+if (!program.args.length) program.help();
