@@ -1,19 +1,35 @@
 
 import cliff from 'cliff';
-import { log, title, display, getDirs, createConfigs, createLogDir } from './util';
+import { log, title, display, getDirs, createConfigs, createSingleConfig, createLogDir } from './util';
 import * as forever from './forever';
 
 export default async function run(services, { script }) {
   await createLogDir();
 
-  // fetch the directory that are validate
-  let dirs = await getDirs(script);
 
-  // filter directories to the ones we care about
-  if(services) {
-    services = services.split(',');
-    dirs = dirs.filter(d => services.indexOf(d) >= 0);
+  if(script) {
+    let dirs = await getDirs({ hasScript: script });
+    dirs = filterDirs(services, dirs);
+    await startScripts(dirs, script);
   }
+  else {
+    let dirs = await getDirs({ hasMain: true });
+    dirs = filterDirs(services, dirs);
+    await startSingle(dirs);
+  }
+}
+
+function filterDirs(desired, dirs) {
+  let result = dirs;
+  if(desired) {
+    desired = desired.split(',');
+    result = dirs.filter(d => desired.indexOf(d) >= 0);
+  }
+  return result;
+}
+
+// starts the script for each of the directories
+async function startScripts(dirs, script) {
 
   // create configs and validate there is work to do
   let configs  = await createConfigs(dirs, script);
@@ -23,14 +39,14 @@ export default async function run(services, { script }) {
   }
 
   title('Starting cluster...');
-  let rows = [ [ '', 'cluster', 'service', 'uid', 'status' ] ];
+  let rows = [ [ '', 'cluster', 'service', 'status' ] ];
   for(let [index, config] of configs.entries()) {
     try {
       await forever.start(config);
-      rows.push([ `[${index}]`, display(config, 'clusterName'), display(config, 'serviceType'), display(config, 'uid'), 'started'.green ]);
+      rows.push([ `[${index}]`, display(config, 'clusterName'), display(config, 'serviceType'), 'started'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, display(config, 'clusterName'), display(config, 'serviceType'), display(config, 'uid'), 'failed'.red + (' - ' + ex.message).grey]);
+      rows.push([ `[${index}]`, display(config, 'clusterName'), display(config, 'serviceType'), 'failed'.red + (' - ' + ex.message).grey]);
     }
   }
 
@@ -39,3 +55,17 @@ export default async function run(services, { script }) {
 }
 
 
+async function startSingle(dirs) {
+  title('Starting cluster...');
+  let rows = [ [ '', 'cluster', 'service', 'status' ] ];
+
+  let config = await createSingleConfig(dirs);
+  await forever.start(config);
+
+  for(let [index, dir] of dirs.entries()) {
+    rows.push([ `[${index}]`, display(config, 'clusterName'), dir.cyan, 'started'.green ]);
+  }
+
+  // output rows
+  log(cliff.stringifyRows(rows));
+}

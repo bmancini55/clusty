@@ -3,6 +3,8 @@ import path from 'path';
 import fs from 'mz/fs';
 import dockerNames from 'docker-names';
 
+const CLUSTY_HOME = process.env.HOME;
+
 export function log() {
   console.log.apply(console, arguments);
 }
@@ -16,14 +18,15 @@ export function error(msg) {
 }
 
 
-export function createConfigs(dirs, script = 'start' ) {
+export function createConfigs(dirs, script) {
   let cwd = process.cwd();
-  let clusterName =path.basename(cwd);
+  let clusterName = path.basename(cwd);
 
   return dirs.map(dir => {
     let serviceType  = dir;
     let instanceName = dockerNames.getRandomName();
-    let logFile      = path.join(cwd, '.clusty', instanceName + '.log' );
+    let logRoot      = path.join(CLUSTY_HOME, '.clusty');
+    let logFile      = path.join(logRoot, serviceType + '.log' );
     return {
       uid: instanceName,
       append: true,
@@ -36,7 +39,8 @@ export function createConfigs(dirs, script = 'start' ) {
       env: Object.assign({}, process.env, {
         CLUSTY_CLUSTER_NAME: clusterName,
         CLUSTY_INSTANCE_NAME: instanceName,
-        CLUSTY_SERVICE_TYPE: serviceType
+        CLUSTY_SERVICE_TYPE: serviceType,
+        CLUSTY_SERVICE_DIRS: dir
       }),
       clusterName: clusterName,
       serviceType: serviceType,
@@ -45,12 +49,62 @@ export function createConfigs(dirs, script = 'start' ) {
   });
 }
 
-export async function getDirs(script) {
+export async function createSingleConfig(dirs) {
+  let cwd = process.cwd();
+  let clusterName  = path.basename(cwd);
+  let serviceType  = 'multi-service';
+  let instanceName = dockerNames.getRandomName();
+  let logRoot      = path.join(CLUSTY_HOME, '.clusty');
+  let logFile      = path.join(logRoot, serviceType + '.log' );
+  let script       = '';
+
+  for(let dir of dirs) {
+    let pack = await loadPackage(dir);
+    let main = pack.main;
+    script += `require('./${dir}/${main}');`;
+  }
+
+  return {
+    uid: instanceName,
+    append: true,
+    watch: false,
+    command: 'node -e',
+    script: script,
+    cwd: cwd,
+    logFile: logFile,
+    max: 1,
+    env: Object.assign({}, process.env, {
+      CLUSTY_CLUSTER_NAME: clusterName,
+      CLUSTY_INSTANCE_NAME: instanceName,
+      CLUSTY_SERVICE_TYPE: serviceType,
+      CLUSTY_SERVICE_DIRS: dirs.join()
+    }),
+    clusterName: clusterName,
+    serviceType: serviceType,
+    instanceName: instanceName
+  };
+}
+
+export async function getDirs({ hasScript, hasMain }) {
   let cwd = process.cwd();
   let results  = [];
   let subpaths = await fs.readdir(cwd);
+
+  // for all subpaths
   for(let subpath of subpaths) {
-    if(await validateDir(subpath, script)) {
+
+    // get the package file
+    let pack = await loadPackage(subpath);
+
+    // ignore if no package file
+    if(!pack)
+      continue;
+
+    else if (
+      (!hasMain && !hasScript) ||
+      (hasScript && pack.scripts && pack.scripts[hasScript]) ||
+      (hasMain && pack.main)
+    ) {
       results.push(subpath);
     }
   }
@@ -58,26 +112,24 @@ export async function getDirs(script) {
 }
 
 
-export async function validateDir(dir, script = 'start') {
+export async function loadPackage(dir) {
   let stats = await fs.stat(dir);
   if(stats.isDirectory()) {
     let packagePath = path.join(dir, 'package.json');
     if(await fs.exists(packagePath)) {
       let packageBytes = await fs.readFile(packagePath);
-      let pack = JSON.parse(packageBytes);
-      if(pack.scripts && pack.scripts[script]) {
-        return true;
-      }
+      let result = JSON.parse(packageBytes);
+      return result;
     }
   }
-  return false;
 }
 
 
 export async function createLogDir() {
-  let exists = await fs.exists('.clusty');
+  let logRoot = path.join(CLUSTY_HOME, '.clusty');
+  let exists = await fs.exists(logRoot);
   if(!exists)
-    await fs.mkdir('.clusty');
+    await fs.mkdir(logRoot);
 }
 
 export function display(proc, property) {
