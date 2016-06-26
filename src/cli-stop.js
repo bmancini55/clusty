@@ -1,6 +1,6 @@
 
 import cliff from 'cliff';
-import { log, title, display } from './util';
+import { log, title } from './util';
 import * as forever from './forever';
 
 export default async function run(services) {
@@ -26,16 +26,16 @@ export default async function run(services) {
   let timeout = setTimeout(() => log('Timeout reached'.red), 30000);
 
   // header row
-  let rows = [ [ '', 'service', 'status' ] ];
+  let rows = [ [ 'status', 'service', 'directories', '', '', '' ] ];
 
   // close all processes
-  for(let [index, proc] of selectedProcs.entries()) {
+  for(let proc of selectedProcs) {
     try {
       await forever.stop(proc.pid);
-      rows.push([ `[${index}]`, display(proc, 'serviceType'), 'stopped'.green ]);
     }
-    catch(ex) {
-      rows.push([ `[${index}]`, display(proc, 'serviceType'), 'failed'.red + (' - ' + ex.message).grey]);
+    catch(ex) { }
+    finally {
+      rows.push.apply(rows, createRows(proc));
     }
   }
 
@@ -44,4 +44,33 @@ export default async function run(services) {
 
   // clear the timeout
   clearTimeout(timeout);
+}
+
+
+function createRows(proc) {
+  let rows = [];
+  let dirs = proc.spawnWith.env.CLUSTY_SERVICE_DIRS.split(',');
+  for(let i = 0; i < dirs.length; i += 4) {
+    if(i === 0) {
+      rows.push([
+        'stopped'.green,
+        proc.uid.cyan,
+        (dirs[i] || '').grey,
+        (dirs[i+1] || '').grey,
+        (dirs[i+2] || '').grey,
+        (dirs[i+3] || '').grey,
+      ]);
+    }
+    else {
+      rows.push([
+        '',
+        '',
+        (dirs[i] || '').grey,
+        (dirs[i+1] || '').grey,
+        (dirs[i+2] || '').grey,
+        (dirs[i+3] || '').grey
+      ]);
+    }
+  }
+  return rows;
 }

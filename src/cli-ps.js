@@ -5,7 +5,7 @@ import psTree from 'ps-tree';
 import pad from 'pad-left';
 import cliff from 'cliff';
 
-import { log, title, display } from './util';
+import { log, title } from './util';
 import * as forever from './forever';
 
 // runs the command
@@ -19,7 +19,7 @@ export default async function run() {
 
   title('Listing cluster...');
 
-  let rows = [ [ '', 'pid', 'service', 'uptime', 'mem-mb', 'cpu-%', '', '', '', '' ] ];
+  let rows = [ [ '', 'pid', 'service', 'uptime', 'mem-mb', 'cpu-%', '', 'directories', '', '' ] ];
   let memTotal = 0;
   let cpuTotal = 0;
   for(let idx = 0; idx < procs.length; idx++) {
@@ -35,7 +35,7 @@ export default async function run() {
         rows.push([
           `[${idx}]`,
           `${proc.pid}`.grey,
-          display(proc, 'serviceType'),
+          proc.uid.cyan,
           uptime(proc),
           pad(mem.toFixed(1), 6, ' ').grey,
           pad(cpu.toFixed(0), 5, ' ').grey,

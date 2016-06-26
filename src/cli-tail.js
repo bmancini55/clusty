@@ -81,7 +81,7 @@ async function tail({ number = 50, stream = false }, arg) {
   }
 
   log('\n==================================================================================\n');
-  log(` Tail ${index}: `, display(proc, 'serviceType'));
+  log(` Tail ${index}: `, proc.uid.cyan);
   log('\n----------------------------------------------------------------------------------\n');
 
   let options = {

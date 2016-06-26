@@ -1,22 +1,16 @@
 
 import cliff from 'cliff';
-import { log, title, display, getDirs, createConfigs, createSingleConfig, createLogDir } from './util';
+import { log, title, getDirs, createSingleConfig, createLogDir } from './util';
 import * as forever from './forever';
 
-export default async function run(services, { script }) {
+export default async function run(services, args) {
   await createLogDir();
 
+  let dirs = await getDirs({ hasMain: true });
+  dirs = filterDirs(services, dirs);
 
-  if(script) {
-    let dirs = await getDirs({ hasScript: script });
-    dirs = filterDirs(services, dirs);
-    await startScripts(dirs, script);
-  }
-  else {
-    let dirs = await getDirs({ hasMain: true });
-    dirs = filterDirs(services, dirs);
-    await startSingle(dirs);
-  }
+  await startSingle(dirs, args);
+
 }
 
 function filterDirs(desired, dirs) {
@@ -28,42 +22,37 @@ function filterDirs(desired, dirs) {
   return result;
 }
 
-// starts the script for each of the directories
-async function startScripts(dirs, script) {
-
-  // create configs and validate there is work to do
-  let configs  = await createConfigs(dirs, script);
-  if(!configs || !configs.length) {
-    title('No directories for starting found');
-    return;
-  }
-
+async function startSingle(dirs, args) {
   title('Starting cluster...');
-  let rows = [ [ '', 'service', 'status' ] ];
-  for(let [index, config] of configs.entries()) {
-    try {
-      await forever.start(config);
-      rows.push([ `[${index}]`, display(config, 'serviceType'), 'started'.green ]);
-    }
-    catch(ex) {
-      rows.push([ `[${index}]`, display(config, 'serviceType'), 'failed'.red + (' - ' + ex.message).grey]);
-    }
-  }
+  let rows = [ [ 'status', 'service', 'directories', '', '', '' ] ];
 
-  // output rows
-  log(cliff.stringifyRows(rows));
-}
+  // generate the config
+  let config = await createSingleConfig(dirs, args);
 
-
-async function startSingle(dirs) {
-  title('Starting cluster...');
-  let rows = [ [ '', 'service', 'status' ] ];
-
-  let config = await createSingleConfig(dirs);
+  // start the single process
   await forever.start(config);
 
-  for(let [index, dir] of dirs.entries()) {
-    rows.push([ `[${index}]`, dir.cyan, 'started'.green ]);
+  // indicate that each was started
+  for(let i = 0; i < dirs.length; i += 4) {
+    if(i === 0)
+      rows.push([
+        'started'.green,
+        config.uid.cyan,
+        (dirs[i].grey || ''),
+        (dirs[i+1] || '').grey,
+        (dirs[i+2] || '').grey,
+        (dirs[i+3] || '').grey
+      ]);
+    else {
+      rows.push([
+        '',
+        '',
+        (dirs[i] || '').grey,
+        (dirs[i+1] || '').grey,
+        (dirs[i+2] || '').grey,
+        (dirs[i+3] || '').grey
+      ]);
+    }
   }
 
   // output rows

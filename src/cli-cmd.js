@@ -1,7 +1,8 @@
 
+let path = require('path');
 import { spawn } from 'child_process';
 import cliff from 'cliff';
-import { log, title, getDirs, createConfigs } from './util';
+import { log, title, getDirs } from './util';
 
 export default async function run(script, services) {
 
@@ -11,7 +12,7 @@ export default async function run(script, services) {
   }
 
   // fetch the directory that are validate
-  let dirs = await getDirs(script);
+  let dirs = await getDirs();
 
   // filter directories to the ones we care about
   if(services) {
@@ -20,22 +21,21 @@ export default async function run(script, services) {
   }
 
   // create configs and validate there is work to do
-  let configs  = await createConfigs(dirs, script);
-  if(!configs || !configs.length) {
-    title('No directories for running found');
+  if(!dirs) {
+    title('No directories for command execution found');
     return;
   }
 
 
-  let rows = [ [ '', 'service', 'status' ] ];
-  for(let [index, config] of configs.entries()) {
-    log('Running: ', config.serviceType);
+  let rows = [ [ 'directory', 'status' ] ];
+  for(let dir of dirs) {
+    log('Running: ', dir);
     try {
-      await execute(config);
-      rows.push([ `[${index}]`, config.serviceType, 'succeeded'.green ]);
+      await execute(dir, script);
+      rows.push([ dir, 'succeeded'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, config.serviceType, 'failed'.red ]);
+      rows.push([ dir, 'failed'.red ]);
     }
   }
 
@@ -45,11 +45,11 @@ export default async function run(script, services) {
 }
 
 
-function execute(config) {
+function execute(dir, script) {
   return new Promise((resolve, reject) => {
 
     // generate shell script
-    const cmd = spawn('sh', ['-c', config.script], { cwd: config.cwd });
+    const cmd = spawn('sh', ['-c', script ], { cwd: path.join(process.cwd(), dir) });
 
     // log the output
     cmd.stdout.on('data', (data) => {

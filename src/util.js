@@ -18,15 +18,14 @@ export function error(msg) {
 }
 
 
-export function createConfigs(dirs, script) {
+export function createConfigs(dirs, { script, name }) {
   let cwd = process.cwd();
   return dirs.map(dir => {
-    let serviceType  = dir;
-    let instanceName = dockerNames.getRandomName();
+    let serviceName  = name || dockerNames.getRandomName();
     let logRoot      = path.join(CLUSTY_HOME, '.clusty');
-    let logFile      = path.join(logRoot, serviceType + '.log' );
+    let logFile      = path.join(logRoot, serviceName + '.log' );
     return {
-      uid: instanceName,
+      uid: serviceName,
       append: true,
       watch: false,
       command: 'npm run',
@@ -35,23 +34,17 @@ export function createConfigs(dirs, script) {
       logFile: logFile,
       max: 1,
       env: Object.assign({}, process.env, {
-        CLUSTY_INSTANCE_NAME: instanceName,
-        CLUSTY_SERVICE_TYPE: serviceType,
         CLUSTY_SERVICE_DIRS: dir
       }),
-      serviceType: serviceType,
-      instanceName: instanceName
     };
   });
 }
 
-export async function createSingleConfig(dirs) {
+export async function createSingleConfig(dirs, { uid }) {
   let cwd = process.cwd();
-  let clusterName  = path.basename(cwd);
-  let serviceType  = 'multi-service';
-  let instanceName = dockerNames.getRandomName();
+  let serviceName  = uid || dockerNames.getRandomName();
   let logRoot      = path.join(CLUSTY_HOME, '.clusty');
-  let logFile      = path.join(logRoot, serviceType + '.log' );
+  let logFile      = path.join(logRoot, serviceName + '.log' );
   let script       = '';
 
   for(let dir of dirs) {
@@ -61,7 +54,7 @@ export async function createSingleConfig(dirs) {
   }
 
   return {
-    uid: instanceName,
+    uid: serviceName,
     append: true,
     watch: false,
     command: 'node -e',
@@ -70,18 +63,12 @@ export async function createSingleConfig(dirs) {
     logFile: logFile,
     max: 1,
     env: Object.assign({}, process.env, {
-      CLUSTY_CLUSTER_NAME: clusterName,
-      CLUSTY_INSTANCE_NAME: instanceName,
-      CLUSTY_SERVICE_TYPE: serviceType,
       CLUSTY_SERVICE_DIRS: dirs.join()
-    }),
-    clusterName: clusterName,
-    serviceType: serviceType,
-    instanceName: instanceName
+    })
   };
 }
 
-export async function getDirs({ hasScript, hasMain }) {
+export async function getDirs({ hasScript, hasMain } = {}) {
   let cwd = process.cwd();
   let results  = [];
   let subpaths = await fs.readdir(cwd);
@@ -126,15 +113,4 @@ export async function createLogDir() {
   let exists = await fs.exists(logRoot);
   if(!exists)
     await fs.mkdir(logRoot);
-}
-
-export function display(proc, property) {
-  switch(property) {
-    case 'uid':
-    case 'serviceType':
-    case 'instanceName':
-      return proc[property] && proc[property].cyan;
-    default:
-      return proc[property];
-  }
 }
