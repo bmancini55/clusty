@@ -26,16 +26,16 @@ export default async function run(services) {
   let timeout = setTimeout(() => log('Timeout reached'.red), 30000);
 
   // header row
-  let rows = [ [ '', 'cluster', 'service', 'status' ] ];
+  let rows = [ [ '', 'service', 'status' ] ];
 
   // close all processes
   for(let [index, proc] of selectedProcs.entries()) {
     try {
       await forever.stop(proc.pid);
-      rows.push([ `[${index}]`, display(proc, 'clusterName'), display(proc, 'serviceType'), 'stopped'.green ]);
+      rows.push([ `[${index}]`, display(proc, 'serviceType'), 'stopped'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, display(proc, 'clusterName'), display(proc, 'serviceType'), 'failed'.red + (' - ' + ex.message).grey]);
+      rows.push([ `[${index}]`, display(proc, 'serviceType'), 'failed'.red + (' - ' + ex.message).grey]);
     }
   }
 

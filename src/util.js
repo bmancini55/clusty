@@ -20,8 +20,6 @@ export function error(msg) {
 
 export function createConfigs(dirs, script) {
   let cwd = process.cwd();
-  let clusterName = path.basename(cwd);
-
   return dirs.map(dir => {
     let serviceType  = dir;
     let instanceName = dockerNames.getRandomName();
@@ -37,12 +35,10 @@ export function createConfigs(dirs, script) {
       logFile: logFile,
       max: 1,
       env: Object.assign({}, process.env, {
-        CLUSTY_CLUSTER_NAME: clusterName,
         CLUSTY_INSTANCE_NAME: instanceName,
         CLUSTY_SERVICE_TYPE: serviceType,
         CLUSTY_SERVICE_DIRS: dir
       }),
-      clusterName: clusterName,
       serviceType: serviceType,
       instanceName: instanceName
     };
@@ -135,7 +131,6 @@ export async function createLogDir() {
 export function display(proc, property) {
   switch(property) {
     case 'uid':
-    case 'clusterName':
     case 'serviceType':
     case 'instanceName':
       return proc[property] && proc[property].cyan;

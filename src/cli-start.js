@@ -39,14 +39,14 @@ async function startScripts(dirs, script) {
   }
 
   title('Starting cluster...');
-  let rows = [ [ '', 'cluster', 'service', 'status' ] ];
+  let rows = [ [ '', 'service', 'status' ] ];
   for(let [index, config] of configs.entries()) {
     try {
       await forever.start(config);
-      rows.push([ `[${index}]`, display(config, 'clusterName'), display(config, 'serviceType'), 'started'.green ]);
+      rows.push([ `[${index}]`, display(config, 'serviceType'), 'started'.green ]);
     }
     catch(ex) {
-      rows.push([ `[${index}]`, display(config, 'clusterName'), display(config, 'serviceType'), 'failed'.red + (' - ' + ex.message).grey]);
+      rows.push([ `[${index}]`, display(config, 'serviceType'), 'failed'.red + (' - ' + ex.message).grey]);
     }
   }
 
@@ -57,13 +57,13 @@ async function startScripts(dirs, script) {
 
 async function startSingle(dirs) {
   title('Starting cluster...');
-  let rows = [ [ '', 'cluster', 'service', 'status' ] ];
+  let rows = [ [ '', 'service', 'status' ] ];
 
   let config = await createSingleConfig(dirs);
   await forever.start(config);
 
   for(let [index, dir] of dirs.entries()) {
-    rows.push([ `[${index}]`, display(config, 'clusterName'), dir.cyan, 'started'.green ]);
+    rows.push([ `[${index}]`, dir.cyan, 'started'.green ]);
   }
 
   // output rows

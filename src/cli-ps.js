@@ -19,7 +19,7 @@ export default async function run() {
 
   title('Listing cluster...');
 
-  let rows = [ [ '', 'cluster', 'service', 'uptime', 'mem-mb', 'cpu-%', 'pid', 'dirs' ] ];
+  let rows = [ [ '', 'service', 'uptime', 'mem-mb', 'cpu-%', 'pid', 'dirs' ] ];
   let memTotal = 0;
   let cpuTotal = 0;
   for(let idx = 0; idx < procs.length; idx++) {
@@ -31,7 +31,6 @@ export default async function run() {
     let { cpu, mem } = await getTreeUsage(pids);
     rows.push([
       `[${idx}]`,
-      display(proc, 'clusterName'),
       display(proc, 'serviceType'),
       uptime(proc),
       pad(mem.toFixed(1), 6, ' ').grey,
@@ -47,7 +46,6 @@ export default async function run() {
   rows.push([
     '',
     'TOTAL',
-    '',
     '',
     '',
     pad(memTotal.toFixed(1), 6, ' '),
