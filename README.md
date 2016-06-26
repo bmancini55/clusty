@@ -1,5 +1,5 @@
 # clusty
-Clusty is a command-line utility for running a number of node applications in parallel.
+Clusty is a command-line utility for running many node applicates as a single process
 
 ## Use
 
@@ -8,10 +8,9 @@ Install clusty globally:
 npm install -g clusty
 ```
 
-You run clusty at the root path of a number of applications. Clusty allows you to `start`, `stop` or `watch` your cluster. It will log output files to `.clusty` and you can execute tail operations on the log files for a given service.
+You run clusty at the root path of a number of applications. Clusty allows you to `start`, `stop` or `watch` your cluster. It will log output files to `~/.clusty` and you can execute tail operations on the log files.
 
-
-Clusty is designed to work at a root of a number of Node projects.  In the diagram below, you would execute clusty commands while inside `app`. These commands would be executed on the sub-services (that are Node applications) that are children to `app`.
+Given an application structure as shown below, you would execute clusty commands with the working directory as `app`.
 ```sh
 \app
 |__\service-a
@@ -21,23 +20,18 @@ Clusty is designed to work at a root of a number of Node projects.  In the diagr
 
 Inside of the root application directoy, you can run clusty to manage the sub-services:
 ```sh
-# start the cluster of services (uses npm start)
+# start the cluster of services
 clusty start
 
 # stop the cluster of service
 clusty stop
 ```
 
-You can also start any script for a service
+You can also execute any shell script across all directories
 ```sh
-clusty start --script <script>
-clusty start --script watch
-```
-
-You can also execute any npm script across all nodes with
-```sh
-clusty run <script>
-clusty run build
+clusty <script>
+clusty 'npm install'
+clusty 'npm run build'
 ```
 
 You can see what is running in the cluster
