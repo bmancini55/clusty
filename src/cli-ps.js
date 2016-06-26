@@ -19,7 +19,7 @@ export default async function run() {
 
   title('Listing cluster...');
 
-  let rows = [ [ '', 'service', 'uptime', 'mem-mb', 'cpu-%', 'pid', 'dirs' ] ];
+  let rows = [ [ '', 'pid', 'service', 'uptime', 'mem-mb', 'cpu-%', '', '', '', '' ] ];
   let memTotal = 0;
   let cpuTotal = 0;
   for(let idx = 0; idx < procs.length; idx++) {
@@ -29,15 +29,39 @@ export default async function run() {
     pids.splice(0, null, proc.pid);
 
     let { cpu, mem } = await getTreeUsage(pids);
-    rows.push([
-      `[${idx}]`,
-      display(proc, 'serviceType'),
-      uptime(proc),
-      pad(mem.toFixed(1), 6, ' ').grey,
-      pad(cpu.toFixed(0), 5, ' ').grey,
-      `${proc.pid}`.grey,
-      proc.spawnWith.env.CLUSTY_SERVICE_DIRS.grey
-    ]);
+    let dirs = proc.spawnWith.env.CLUSTY_SERVICE_DIRS.split(',');
+    for(let i = 0; i < dirs.length; i += 4) {
+      if(i === 0) {
+        rows.push([
+          `[${idx}]`,
+          `${proc.pid}`.grey,
+          display(proc, 'serviceType'),
+          uptime(proc),
+          pad(mem.toFixed(1), 6, ' ').grey,
+          pad(cpu.toFixed(0), 5, ' ').grey,
+          '  ',
+          (dirs[i] || '').grey,
+          (dirs[i+1] || '').grey,
+          (dirs[i+2] || '').grey,
+          (dirs[i+3] || '').grey,
+        ]);
+      }
+      else {
+        rows.push([
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          (dirs[i] || '').grey,
+          (dirs[i+1] || '').grey,
+          (dirs[i+2] || '').grey,
+          (dirs[i+3] || '').grey
+        ]);
+      }
+    }
 
     memTotal += mem;
     cpuTotal += cpu;
@@ -45,13 +69,11 @@ export default async function run() {
 
   rows.push([
     '',
+    '',
     'TOTAL',
     '',
-    '',
     pad(memTotal.toFixed(1), 6, ' '),
-    pad(cpuTotal.toFixed(0), 5, ' '),
-    '',
-    ''
+    pad(cpuTotal.toFixed(0), 5, ' ')
   ]);
 
   log(cliff.stringifyRows(rows));
