@@ -1,5 +1,4 @@
 import 'babel-polyfill';
-import 'colors';
 import program from 'commander';
 
 import ps from './cli-ps';
@@ -10,7 +9,7 @@ import cmd from './cli-cmd';
 
 
 program
-  .version('0.4.0');
+  .version(require('../package.json').version);
 
 // ps
 //
