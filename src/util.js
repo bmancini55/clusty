@@ -50,7 +50,7 @@ export async function createSingleConfig(dirs, { uid }) {
   for(let dir of dirs) {
     let pack = await loadPackage(dir);
     let main = pack.main;
-    script += `require('./${dir}/${main}');`;
+    script += `require('./${dir}/${main}');\n`;
   }
 
   return {
@@ -61,7 +61,6 @@ export async function createSingleConfig(dirs, { uid }) {
     script: script,
     cwd: cwd,
     logFile: logFile,
-    max: 1,
     env: Object.assign({}, process.env, {
       CLUSTY_SERVICE_DIRS: dirs.join()
     })

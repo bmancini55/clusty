@@ -24,6 +24,7 @@ program
   .command('start [services]')
   .description('Starts the service(s) for the cluster with the supplied options')
   .option('-i, --uid [uid]', 'the name of the service')
+  .option('-w, --watch', 'watches for changes and restarts service')
   .action((services, options) => start(services, options).catch(console.log));
 
 // stop
